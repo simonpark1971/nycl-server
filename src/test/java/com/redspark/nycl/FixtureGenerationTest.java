@@ -3,7 +3,6 @@ package com.redspark.nycl;
 import com.redspark.nycl.domain.Fixture;
 import com.redspark.nycl.domain.Season;
 import com.redspark.nycl.service.SeasonConfigurationService;
-import com.redspark.nycl.service.impl.postgresql.PostgresqlSeasonConfigurationService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +24,8 @@ public class FixtureGenerationTest {
 
   @Test
   public void testGenerate() {
-    Season season = seasonConfigurationService.createSeason("2018");
-    List<Fixture> fixtures = seasonConfigurationService.generateFixtures("2018");
+      Season season = seasonConfigurationService.createSeason("2019");
+      List<Fixture> fixtures = seasonConfigurationService.generateFixtures("2019");
 
     System.out.println(season.getFixtures());
   }

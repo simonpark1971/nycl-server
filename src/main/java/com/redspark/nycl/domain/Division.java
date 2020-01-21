@@ -65,6 +65,11 @@ public class Division {
     Collections.shuffle(randomOrderSecondTeams, new Random(System.nanoTime()));
 
     for (Team clubTeam : randomOrderFirstTeams) {
+
+      if (!clubTeam.hasPreferredHomeDay()) {
+        System.out.println(clubTeam + " has no preferred home day");
+      }
+
       for (Team randomOrderSecondTeam : randomOrderSecondTeams) {
         if (!clubTeam.equals(randomOrderSecondTeam)) {
           if (config.isHomeAndAway()) {

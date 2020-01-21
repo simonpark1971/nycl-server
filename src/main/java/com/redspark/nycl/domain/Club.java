@@ -23,10 +23,29 @@ public class Club {
   private static final Logger LOGGER = LoggerFactory.getLogger(Club.class);
 
   @Column(name = "number_of_pitches")
-  public int pitches;
+  public int pitches = 1;
+
+  public int getPitches() {
+    return pitches;
+  }
+
+  public void setPitches(int pitches) {
+    this.pitches = pitches;
+  }
 
   @Column(name = "deleted")
   public boolean deleted = false;
+
+  public String getUsername() {
+    return username;
+  }
+
+  public void setUsername(String username) {
+    this.username = username;
+  }
+
+  @Column(name = "username")
+  private String username;
 
   @OneToMany(mappedBy = "club", cascade = CascadeType.ALL)
   private List<Team> clubTeams = new ArrayList<Team>();
@@ -123,7 +142,7 @@ public class Club {
           return clubTeam;
         }
       } else {
-        if(clubTeam.getAgeGroup() == ageGrp && clubTeam.getName() != null && teamName.contains(clubTeam.getName())) {
+        if(clubTeam.getAgeGroup() == ageGrp && clubTeam.getTeamName() != null && teamName.contains(clubTeam.getTeamName())) {
           LOGGER.info("Team found ->" +clubName + " " + ageGrp.toString() + ", " + teamName);
           return clubTeam;
         }
@@ -161,7 +180,7 @@ public class Club {
     if(clubTeams != null) {
       for (Team team : clubTeams) {
         team.setClub(this);
-        team.clubName = this.clubName;
+        team.setClubName(this.clubName);
       }
     } else {
       LOGGER.warn("Club has no teams " + clubName);
@@ -195,7 +214,7 @@ public class Club {
 
   public boolean hasTeam(AgeGroup girls, String teamName) {
     for (Team clubTeam : clubTeams) {
-      if(clubTeam.getAgeGroup() == girls && clubTeam.getName() != null && clubTeam.getName().equals(teamName)) {
+      if(clubTeam.getAgeGroup() == girls && clubTeam.getTeamName() != null && clubTeam.getTeamName().equals(teamName)) {
         return true;
       }
     }
@@ -247,6 +266,8 @@ public class Club {
         return existingGameFor(dt, allFixtures, AgeGroup.Under13, AgeGroup.Under15, AgeGroup.Under15_8S, AgeGroup.Under13_8S);
       case Under15:
         return existingGameFor(dt, allFixtures, AgeGroup.Under14, AgeGroup.Under15_8S);
+        case Under12_8S:
+            return existingGameFor(dt, allFixtures, AgeGroup.Under12, AgeGroup.Under13, AgeGroup.Under11, AgeGroup.Under13_8S);
       case Under13_8S:
         return existingGameFor(dt, allFixtures, AgeGroup.Under12, AgeGroup.Under13, AgeGroup.Under14, AgeGroup.Under15_8S);
       case Under15_8S:

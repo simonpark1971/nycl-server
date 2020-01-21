@@ -17,4 +17,6 @@ public interface PostgresqlClubRepository extends CrudRepository<Club, String> {
 
   List<Club> findClubsByEnterU14Cup(boolean entering);
 
+  Club findClubByUsername(String username);
+
 }

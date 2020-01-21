@@ -5,14 +5,14 @@ import com.opencsv.CSVWriter;
 import com.redspark.nycl.domain.*;
 import com.redspark.nycl.service.ClubService;
 import com.redspark.nycl.service.SeasonConfigurationService;
-import com.redspark.nycl.util.DomainUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.util.*;
@@ -31,156 +31,24 @@ public class ApplicationFormController {
 
   @PostMapping(value = "/register", consumes = "application/json")
   @CrossOrigin(origins = "*")
-  public String register(@RequestBody Club club) {
-    club.getMainContact().setUsername("");
+  public ResponseEntity register(@RequestBody Club club) {
     clubService.store(club);
-    return "registered";
+    return new ResponseEntity(clubService.getClub(club.getClubName()), HttpStatus.OK);
   }
 
   @PostMapping(value = "/apply", consumes = "application/json")
   @CrossOrigin(origins = "*")
-  public String apply(@RequestBody Club club) {
+  public ResponseEntity apply(@RequestBody Club club) {
     clubService.store(club);
-    return "registered";
+    return new ResponseEntity(clubService.getClub(club.getClubName()), HttpStatus.OK);
   }
 
   @PostMapping(value = "/complete", consumes = "application/json")
   @CrossOrigin(origins = "*")
-  public String completeApplication(@RequestBody Club club) {
+  public ResponseEntity completeApplication(@RequestBody Club club) {
     club.setApplicationStatus("complete");
     clubService.store(club);
-    return "registered";
-  }
-
-  @POST
-  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-  @Path("main")
-  public void apply(@FormParam("clubName") String clubName,
-                    @FormParam("applicantName") String applicantName,
-                    @FormParam("applicantPosition") String applicantPosition,
-                    @FormParam("clubContactName") String clubContactName,
-                    @FormParam("clubContactAddress") String clubContactAddress,
-                    @FormParam("clubContactPostcode") String clubContactPostcode,
-                    @FormParam("clubContactHomePhone") String clubContactHomePhone,
-                    @FormParam("clubContactMobilePhone") String clubContactMobilePhone,
-                    @FormParam("clubContactEmail") String clubContactEmail,
-                    @FormParam("fixtureContactName") String fixtureContactName,
-                    @FormParam("fixtureContactAddress") String fixtureContactAddress,
-                    @FormParam("fixtureContactPostcode") String fixtureContactPostcode,
-                    @FormParam("fixtureContactHomePhone") String fixtureContactHomePhone,
-                    @FormParam("fixtureContactMobilePhone") String fixtureContactMobilePhone,
-                    @FormParam("fixtureContactEmail") String fixtureContactEmail,
-                    @Context HttpServletResponse response) throws IOException{
-
-    System.out.println("New Club:" + clubName);
-    System.out.println("New applicantName:" + applicantName);
-    System.out.println("New applicantPosition:" + applicantPosition);
-    System.out.println("New clubContactName:" + clubContactName);
-    System.out.println("New clubContactAddress:" + clubContactAddress);
-    System.out.println("New Club:" + clubContactPostcode);
-    System.out.println("New clubContactPostcode:" + clubContactHomePhone);
-    System.out.println("New clubContactMobilePhone:" + clubContactMobilePhone);
-    System.out.println("New clubContactEmail:" + clubContactEmail);
-    System.out.println("New fixtureContactName:" + fixtureContactName);
-    System.out.println("New fixtureContactAddress:" + fixtureContactAddress);
-    System.out.println("New fixtureContactPostcode:" + fixtureContactPostcode);
-    System.out.println("New fixtureContactHomePhone:" + fixtureContactHomePhone);
-    System.out.println("New fixtureContactMobilePhone:" + fixtureContactMobilePhone);
-    System.out.println("New fixtureContactEmail:" + fixtureContactEmail);
-
-
-    Club club = new Club(clubName, 1);
-    Contact mainContact = Contact.createContact(clubContactName,
-      applicantPosition,
-      clubContactAddress,
-      clubContactPostcode,
-      clubContactHomePhone,
-      clubContactMobilePhone,
-      clubContactEmail,
-      Contact.ContactType.CLUB_CONTACT);
-    club.setMainContact(mainContact);
-
-    Contact fixturesContact = Contact.createContact(fixtureContactName,
-      null,
-      fixtureContactAddress,
-      fixtureContactPostcode,
-      fixtureContactHomePhone,
-      fixtureContactMobilePhone,
-      fixtureContactEmail,
-      Contact.ContactType.FIXTURES_CONTACT);
-    club.setFixturesContact(fixturesContact);
-
-    clubService.store(club);
-
-    response.sendRedirect("/nycl/addTeam.html");
-  }
-
-  @POST
-  @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
-  @Path("team")
-  public void addTeam(@QueryParam("another") Boolean another,
-                      @QueryParam("clubName") String clubName,
-                      @FormParam("ageGroupSelect") String ageGroup,
-                      @FormParam("homeDaySelect") String homeDaySelect,
-                      @FormParam("firstContactName") String firstContactName,
-                      @FormParam("firstContactAddress") String firstContactAddress,
-                      @FormParam("firstContactPostcode") String firstContactPostcode,
-                      @FormParam("firstContactHomePhone") String firstContactHomePhone,
-                      @FormParam("firstContactMobilePhone") String firstContactMobilePhone,
-                      @FormParam("firstContactEmail") String firstContactEmail,
-                      @FormParam("secondContactName") String secondContactName,
-                      @FormParam("secondContactAddress") String  secondContactAddress,
-                      @FormParam("secondContactPostcode") String  secondContactPostcode,
-                      @FormParam("secondContactHomePhone") String secondContactHomePhone,
-                      @FormParam("secondContactMobilePhone") String secondContactMobilePhone,
-                      @FormParam("secondContactEmail") String secondContactEmail,
-                      @Context HttpServletResponse response) throws IOException{
-
-    System.out.println("Team age group:" + ageGroup);
-    System.out.println("Preferred day:" + homeDaySelect);
-    System.out.println("Primary contact name:" + firstContactName);
-    System.out.println("Primary contact address:" + firstContactAddress);
-    System.out.println("Primary contact postcode:" + firstContactPostcode);
-    System.out.println("Primary contact home phone:" + firstContactHomePhone);
-    System.out.println("Primary contact mobile phone:" + firstContactMobilePhone);
-    System.out.println("Primary contact email address:" + firstContactEmail);
-    System.out.println("Secondary contact name:" + secondContactName);
-    System.out.println("Secondary contact address:" + secondContactAddress);
-    System.out.println("Secondary contact postcode:" + secondContactPostcode);
-    System.out.println("Secondary contact home phone:" + secondContactHomePhone);
-    System.out.println("Secondary contact mobile phone:" + secondContactMobilePhone);
-    System.out.println("Secondary contact email address:" + secondContactEmail);
-
-    Club club = clubService.getClub(clubName);
-    club.getClubTeams().add(Team.createTeam(
-      club,
-      DomainUtil.getAgeGroup(ageGroup),
-      Contact.createContact(firstContactName,
-        Contact.ContactType.FIRST_CONTACT.toString(),
-        firstContactAddress,
-        firstContactPostcode,
-        firstContactHomePhone,
-        firstContactMobilePhone,
-        firstContactEmail,
-        Contact.ContactType.FIRST_CONTACT),
-      Contact.createContact(secondContactName,
-        Contact.ContactType.SECOND_CONTACT.toString(),
-        secondContactAddress,
-        secondContactPostcode,
-        secondContactHomePhone,
-        secondContactMobilePhone,
-        secondContactEmail,
-        Contact.ContactType.SECOND_CONTACT), "",
-      false, false, false,
-      false, false, false));
-
-    clubService.updateClub(club.getClubName(), club);
-
-    if(another) {
-      response.sendRedirect("/nycl/addTeam.html");
-    } else {
-      response.sendRedirect("/nycl/clubTeams.html");
-    }
+    return new ResponseEntity(HttpStatus.OK);
   }
 
   @GET
@@ -356,42 +224,14 @@ public class ApplicationFormController {
   }
 
   @POST
-  @Path("team/delete")
-  public void deleteTeam(@QueryParam("clubName")String clubName, @QueryParam("ageGroup") AgeGroup ageGroup) {
-    Club club = clubService.getClub(clubName);
-    if (club != null) {
-      for (Team team : club.getClubTeams()) {
-        if (team.getAgeGroup() == ageGroup && !team.isDeleted()) {
-          team.delete();
-          clubService.markTeamAsDeleted(club);
-          return;
-        }
-      }
-
-    }
-  }
-
-  private void filterDeletedTeams(Club club) {
-    club.removeDeletedTeams();
-  }
-
-  @POST
   @Path("team/updaterank")
   public void updateTeamRank(@QueryParam("clubName") String clubName,
                              @QueryParam("ageGroup") AgeGroup ageGroup,
                              @QueryParam("rank") int rank) {
+    clubService.updateTeamRanking(clubName, ageGroup, rank);
+  }
 
-    Club club = clubService.getClub(clubName);
-    if (club != null) {
-      for (Team team : club.getClubTeams()) {
-        if (team.getAgeGroup() == ageGroup && !team.isDeleted()) {
-          team.setRank(rank);
-          clubService.store(club);
-          return;
-        }
-      }
-
-    }
-
+  private void filterDeletedTeams(Club club) {
+    club.removeDeletedTeams();
   }
 }

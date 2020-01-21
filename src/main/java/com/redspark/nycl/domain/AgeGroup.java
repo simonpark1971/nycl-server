@@ -12,5 +12,6 @@ public enum AgeGroup {
   Under14,
   Under15_8S,
   Under15,
-  GIRLS
+  GIRLS,
+  Under12_8S
 }

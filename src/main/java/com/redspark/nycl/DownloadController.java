@@ -7,17 +7,17 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class DownloadController {
     XSSFWorkbook workbook = new XSSFWorkbook();
     for (AgeGroup ageGroup : AgeGroup.values()) {
       XSSFSheet sheet = workbook.createSheet(ageGroup.toString());
-      League league = seasonConfigurationService.getLeague("2018", ageGroup);
+      League league = seasonConfigurationService.getLeague("2019", ageGroup);
       List<Team> teams = new ArrayList<>();
       for (Division division : league.getDivisions()) {
         teams.addAll(division.getTeams());
@@ -59,7 +59,7 @@ public class DownloadController {
       for (Team team : teams) {
         Row row = sheet.createRow(rowCounter++);
         Cell cell = row.createCell(0);
-        cell.setCellValue(team.clubName + " " + team.getName());
+        cell.setCellValue(team.getClubName() + " " + team.getTeamName());
       }
     }
     FileOutputStream outputStream = new FileOutputStream("./me.xlsx");
@@ -115,8 +115,8 @@ public class DownloadController {
   @CrossOrigin(origins = "*")
   public ResponseEntity<Resource> downloadFixtures() throws IOException {
 
-    Season season = seasonConfigurationService.createSeason("2018");
-    seasonConfigurationService.generateFixtures("2018");
+    Season season = seasonConfigurationService.createSeason("2019");
+    seasonConfigurationService.generateFixtures("2019");
 
     List<Fixture> fixtures = season.getFixtures();
 
@@ -331,7 +331,7 @@ public class DownloadController {
     homeTeamClubCell.setCellValue(fixture.getHomeTeam().getClubName());
 
     Cell homeTeamCell = row.createCell(2);
-    homeTeamCell.setCellValue("(" + fixture.getHomeTeam().getName() + ")");
+    homeTeamCell.setCellValue("(" + fixture.getHomeTeam().getTeamName() + ")");
 
     Cell homeTeamAgeGroup = row.createCell(3);
     homeTeamAgeGroup.setCellValue(fixture.getHomeTeam().getAgeGroup().toString());
@@ -343,7 +343,7 @@ public class DownloadController {
     awayTeamClubCell.setCellValue(fixture.getAwayTeam().getClubName());
 
     Cell awayTeamCell = row.createCell(6);
-    awayTeamCell.setCellValue("(" + fixture.getAwayTeam().getName() + ")");
+    awayTeamCell.setCellValue("(" + fixture.getAwayTeam().getTeamName() + ")");
 
     Cell awayTeamAgeGroup = row.createCell(7);
     awayTeamAgeGroup.setCellValue(fixture.getAwayTeam().getAgeGroup().toString());

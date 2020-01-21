@@ -1,5 +1,6 @@
 package com.redspark.nycl.service;
 
+import com.redspark.nycl.domain.AgeGroup;
 import com.redspark.nycl.domain.Club;
 import com.redspark.nycl.domain.Team;
 
@@ -17,15 +18,17 @@ public interface ClubService {
 
   void markClubDeleted(String clubName);
 
-  void updateCupCompetitions(Club club);
-
-  void markTeamAsDeleted(Club club);
-
-  void removeAllTeams();
-
-  void removeDuplicates();
-
-  void registerNewClub(String myClub, String mainContactName, String emailAddress);
+  void deleteTeam(String teamId);
 
   Club getMainContactsClub(String contactName);
+
+  void addTeam(Team team);
+
+  void updateCupEntries(Club club);
+
+  void updateTeamRanking(String clubName, AgeGroup ageGroup, int rank);
+
+  Club getClubById(String id);
+
+  Club getClubByUserName(String username);
 }

@@ -55,7 +55,7 @@ public class Team {
   @JoinColumn(name = "CLUB_ID", nullable = false)
   @JsonIgnore
   private Club club;
-  public String clubName;
+  private String clubName;
   private AgeGroup ageGroup;
   private boolean playHomeMondays = false;
   private boolean playHomeTuesdays = false;
@@ -65,77 +65,8 @@ public class Team {
   private boolean playHomeSundays = false;
   @Transient
   private List<FixtureRule> rules;
-
   private int rank = 1;
   private boolean deleted = false;
-
-  public String getId() {
-    return id;
-  }
-
-  public void setId(String id) {
-    this.id = id;
-  }
-
-  public String getTeamName() {
-    return teamName;
-  }
-
-  public void setTeamName(String teamName) {
-    this.teamName = teamName;
-  }
-
-  public void setClubName(String clubName) {
-    this.clubName = clubName;
-  }
-
-  public boolean isPlayHomeMondays() {
-    return playHomeMondays;
-  }
-
-  public void setPlayHomeMondays(boolean playHomeMondays) {
-    this.playHomeMondays = playHomeMondays;
-  }
-
-  public boolean isPlayHomeTuesdays() {
-    return playHomeTuesdays;
-  }
-
-  public void setPlayHomeTuesdays(boolean playHomeTuesdays) {
-    this.playHomeTuesdays = playHomeTuesdays;
-  }
-
-  public boolean isPlayHomeWednesdays() {
-    return playHomeWednesdays;
-  }
-
-  public void setPlayHomeWednesdays(boolean playHomeWednesdays) {
-    this.playHomeWednesdays = playHomeWednesdays;
-  }
-
-  public boolean isPlayHomeThursdays() {
-    return playHomeThursdays;
-  }
-
-  public void setPlayHomeThursdays(boolean playHomeThursdays) {
-    this.playHomeThursdays = playHomeThursdays;
-  }
-
-  public boolean isPlayHomeFridays() {
-    return playHomeFridays;
-  }
-
-  public void setPlayHomeFridays(boolean playHomeFridays) {
-    this.playHomeFridays = playHomeFridays;
-  }
-
-  public boolean isPlayHomeSundays() {
-    return playHomeSundays;
-  }
-
-  public void setPlayHomeSundays(boolean playHomeSundays) {
-    this.playHomeSundays = playHomeSundays;
-  }
 
   public Team() {}
 
@@ -147,14 +78,6 @@ public class Team {
                                 boolean playHomeFridays,
                                 boolean playHomeSundays) {
     return new Team(club, ageGroup, null, null, null, playHomeMondays, playHomeTuesdays, playHomeWednesdays, playHomeThursdays, playHomeFridays, playHomeSundays);
-  }
-
-  public static Team createTeam(NYCL_CLUB club, AgeGroup ageGroup) {
-    return new Team(new Club(club.toString(), 1), ageGroup, null, null, null, false, false, false, false, false, false);
-  }
-
-  public static Team createTeam(NYCL_CLUB club, AgeGroup ageGroup, String teamName) {
-    return new Team(new Club(club.toString(), 1), ageGroup, null, null, teamName, false, false, false, false, false, false);
   }
 
   public static Team createTeam(Club club,
@@ -169,7 +92,17 @@ public class Team {
                                 boolean playHomeFridays,
                                 boolean playHomeSundays) {
 
-    return new Team(club, ageGroup, primaryContact, secondaryContact, teamName, playHomeMondays, playHomeTuesdays, playHomeWednesdays, playHomeThursdays, playHomeFridays, playHomeSundays);
+    return new Team(club,
+            ageGroup,
+            primaryContact,
+            secondaryContact,
+            teamName,
+            playHomeMondays,
+            playHomeTuesdays,
+            playHomeWednesdays,
+            playHomeThursdays,
+            playHomeFridays,
+            playHomeSundays);
   }
 
   public Team(Club club,
@@ -205,7 +138,6 @@ public class Team {
   public Set<Date> getAllPossibleDates(Week week) {
     return week.getDates().stream().filter(dt->isOnPreferredDay(dt)).collect(Collectors.toSet());
   }
-
 
   @Override
   public boolean equals(Object o) {
@@ -347,28 +279,8 @@ public class Team {
     return allFixtures.stream().filter(f -> isTeamInvolvedInFixture(f)).collect(Collectors.toList());
   }
 
-  public String getName() {
-    return this.teamName;
-  }
-
-  public void setName(String name) {
-    this.teamName = name;
-  }
-
-  public Contact getPrimaryContact() {
-    return primaryContact;
-  }
-
-  public Contact getSecondaryContact() {
-    return secondaryContact;
-  }
-
   public void delete() {
     this.deleted = true;
-  }
-
-  public AgeGroup getAgeGroup() {
-    return ageGroup;
   }
 
   private void resetAllHomeDays() {
@@ -378,31 +290,6 @@ public class Team {
     this.playHomeThursdays = false;
     this.playHomeFridays = false;
     this.playHomeWednesdays = false;
-  }
-
-  public Club getClub() {
-    return club;
-  }
-
-  public String getClubName() {
-    return this.clubName == null ? "Unknown club" : this.clubName;
-  }
-
-  public void setClub(Club club) {
-    this.club = club;
-    this.clubName = this.getClub().getClubName();
-  }
-
-  public boolean isDeleted() {
-    return deleted;
-  }
-
-  public int getRank() {
-    return rank == 0 ? 1 : rank;
-  }
-
-  public void setRank(int rank) {
-    this.rank = rank;
   }
 
   public int getHomeFixtureCount(Set<Fixture> divisionFixtureList) {
@@ -423,5 +310,90 @@ public class Team {
 
   public boolean validate(Week week, Set<Fixture> divisionFixtureList) {
     return !this.hasTeamGotAFixtureThisWeek(divisionFixtureList, week);
+  }
+
+  public boolean hasPreferredHomeDay() {
+    return isPlayHomeMondays() || isPlayHomeTuesdays() || isPlayHomeWednesdays() || isPlayHomeThursdays()
+            || isPlayHomeFridays() || isPlayHomeSundays();
+  }
+
+  public String getId() {
+    return id;
+  }
+  public void setId(String id) {
+    this.id = id;
+  }
+  public String getTeamName() {
+    return teamName;
+  }
+  public void setTeamName(String teamName) {
+    this.teamName = teamName;
+  }
+  public void setClubName(String clubName) {
+    this.clubName = clubName;
+  }
+  public boolean isPlayHomeMondays() {
+    return playHomeMondays;
+  }
+  public void setPlayHomeMondays(boolean playHomeMondays) {
+    this.playHomeMondays = playHomeMondays;
+  }
+  public boolean isPlayHomeTuesdays() {
+    return playHomeTuesdays;
+  }
+  public void setPlayHomeTuesdays(boolean playHomeTuesdays) {
+    this.playHomeTuesdays = playHomeTuesdays;
+  }
+  public boolean isPlayHomeWednesdays() {
+    return playHomeWednesdays;
+  }
+  public void setPlayHomeWednesdays(boolean playHomeWednesdays) {
+    this.playHomeWednesdays = playHomeWednesdays;
+  }
+  public boolean isPlayHomeThursdays() {
+    return playHomeThursdays;
+  }
+  public void setPlayHomeThursdays(boolean playHomeThursdays) {
+    this.playHomeThursdays = playHomeThursdays;
+  }
+  public boolean isPlayHomeFridays() {
+    return playHomeFridays;
+  }
+  public void setPlayHomeFridays(boolean playHomeFridays) {
+    this.playHomeFridays = playHomeFridays;
+  }
+  public boolean isPlayHomeSundays() {
+    return playHomeSundays;
+  }
+  public void setPlayHomeSundays(boolean playHomeSundays) {
+    this.playHomeSundays = playHomeSundays;
+  }
+  public Club getClub() {
+    return club;
+  }
+  public String getClubName() {
+    return this.clubName == null ? "Unknown club" : this.clubName;
+  }
+  public void setClub(Club club) {
+    this.club = club;
+    this.clubName = this.getClub().getClubName();
+  }
+  public boolean isDeleted() {
+    return deleted;
+  }
+  public int getRank() {
+    return rank == 0 ? 1 : rank;
+  }
+  public void setRank(int rank) {
+    this.rank = rank;
+  }
+  public AgeGroup getAgeGroup() {
+    return ageGroup;
+  }
+  public Contact getPrimaryContact() {
+    return primaryContact;
+  }
+  public Contact getSecondaryContact() {
+    return secondaryContact;
   }
 }

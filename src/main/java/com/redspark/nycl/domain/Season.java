@@ -9,10 +9,7 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.*;
 import java.text.ParseException;
 import java.util.*;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-
-import static java.util.Collections.*;
 
 @Entity
 @Table(name = "season")
@@ -83,7 +80,7 @@ public class Season {
   public void setFixtureDates() {
     try {
       if (weeks == null || weeks.isEmpty()) {
-        this.startDate = PostgresqlSeasonConfigurationService.DATE_FORMAT.parse("30 04 " + PostgresqlSeasonConfigurationService.CURRENT_YEAR);
+        this.startDate = PostgresqlSeasonConfigurationService.DATE_FORMAT.parse("29 04 " + PostgresqlSeasonConfigurationService.CURRENT_YEAR);
         this.endDate = PostgresqlSeasonConfigurationService.DATE_FORMAT.parse("31 07 " + PostgresqlSeasonConfigurationService.CURRENT_YEAR);
         this.weeks = WeekBuilder.buildWeeks(startDate, endDate);
       }

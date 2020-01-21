@@ -36,12 +36,19 @@ public class PostgresqlSeasonConfigurationService implements SeasonConfiguration
   private PostgresqlDivisionConfigurationRepository divisionConfigurationRepository;
 
   @Override
-  public League getLeague(String season, AgeGroup ageGroup) {
+  public League getLeague(String seasonTag, AgeGroup ageGroup) {
 
+    Season season = null;
     LeagueConfiguration leagueConfig = leagueConfigurationRepository.findLeagueConfigurationByAgeGroup(ageGroup);
 
+    if (leagueConfig == null) {
+      season = createSeason(CURRENT_YEAR);
+      this.saveSeason(CURRENT_YEAR, season);
+      leagueConfig = leagueConfigurationRepository.findLeagueConfigurationByAgeGroup(ageGroup);
+    }
+
     League league = new League(leagueConfig, this.postgresqlSeasonConfigurationRepository.findTeamsByAgeGroupEquals(
-      ageGroup));
+            ageGroup));
     return league;
   }
 
@@ -56,9 +63,10 @@ public class PostgresqlSeasonConfigurationService implements SeasonConfiguration
     try {
       season = seasonRepository.findByName(seasonTag);
       if (null == season) {
-        Date startDate = DATE_FORMAT.parse("01 05 " + CURRENT_YEAR);
-        Date endDate = DATE_FORMAT.parse("31 07 " + CURRENT_YEAR);
-        season = new Season(startDate, endDate, new SeasonConfiguration(seasonTag));
+        Date startDate = DATE_FORMAT.parse("01 05 " + seasonTag);
+        Date endDate   = DATE_FORMAT.parse("31 07 " + seasonTag);
+        season         = new Season(startDate, endDate, new SeasonConfiguration(seasonTag));
+        this.saveSeason(seasonTag, season);
       }
     } catch( ParseException parseEx) {
       throw new RuntimeException(parseEx);
@@ -90,9 +98,9 @@ public class PostgresqlSeasonConfigurationService implements SeasonConfiguration
   public void saveSeason(String seasonYear, Season season) {
     season.setName(seasonYear);
     for (LeagueConfiguration leagueConfiguration : season.getConfig().getAgeGroupConfigurations().values()) {
-      divisionConfigurationRepository.save(leagueConfiguration.getDivisions());
+      divisionConfigurationRepository.saveAll(leagueConfiguration.getDivisions());
     }
-    leagueConfigurationRepository.save(season.getConfig().getAgeGroupConfigurations().values());
+    leagueConfigurationRepository.saveAll(season.getConfig().getAgeGroupConfigurations().values());
     seasonRepository.save(season);
   }
 
@@ -110,9 +118,9 @@ public class PostgresqlSeasonConfigurationService implements SeasonConfiguration
   public void saveLeague(League league) {
     for (Division division : league.getDivisions()) {
       for (Team team : division.getTeams()) {
-        team.setClub(teamRepository.findOne(team.getId()).getClub());
+        team.setClub(teamRepository.findById(team.getId()).get().getClub());
       }
-      teamRepository.save(division.getTeams());
+      teamRepository.saveAll(division.getTeams());
     }
   }
 

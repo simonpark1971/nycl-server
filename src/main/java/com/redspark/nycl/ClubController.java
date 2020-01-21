@@ -1,30 +1,15 @@
 package com.redspark.nycl;
 
-import com.redspark.nycl.domain.*;
+import com.redspark.nycl.domain.Club;
+import com.redspark.nycl.domain.Team;
 import com.redspark.nycl.service.ClubService;
 import com.redspark.nycl.service.SeasonConfigurationService;
-import org.apache.commons.csv.CSVFormat;
-import org.apache.commons.csv.CSVPrinter;
-import org.apache.commons.io.IOUtils;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.xssf.usermodel.XSSFSheet;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.InputStreamResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Stream;
+import javax.ws.rs.Produces;
 
 /**
  * Created by simonpark on 26/09/2016.
@@ -53,18 +38,24 @@ public class ClubController {
 
   @GetMapping(value = "/getclub")
   @CrossOrigin(origins = "*")
-  public ResponseEntity getClub(@RequestParam(name = "clubName") String clubName) {
-    return new ResponseEntity(clubService.getClub(clubName), HttpStatus.OK);
+  @Produces("application/json")
+  public ResponseEntity getClub(@RequestParam(name = "id") String id) {
+    return new ResponseEntity(clubService.getClubById(id), HttpStatus.OK);
+  }
+
+  @GetMapping(value = "/getclubbyusername")
+  @CrossOrigin(origins = "*")
+  @Produces("application/json")
+  public ResponseEntity getClubByUser(@RequestParam(name = "username") String username) {
+    return new ResponseEntity(clubService.getClubByUserName(username), HttpStatus.OK);
   }
 
   @PostMapping(value = "/addteam", consumes = "application/json")
   @CrossOrigin(origins = "*")
   public ResponseEntity addTeam(@RequestBody Team team) {
+    clubService.addTeam(team);
     Club teamsClub = clubService.getClub(team.getClubName());
-    teamsClub.getClubTeams().add(team);
-    team.setClub(teamsClub);
-    clubService.updateClub(team.getClubName(), teamsClub);
-    return new ResponseEntity(HttpStatus.OK);
+    return new ResponseEntity(teamsClub.getClubTeams(), HttpStatus.OK);
   }
 
   @GetMapping(value = "/getteams")
@@ -77,11 +68,13 @@ public class ClubController {
   @PostMapping(value = "/updatecupentries", consumes = "application/json")
   @CrossOrigin(origins = "*")
   public ResponseEntity updateCupEntries(@RequestBody Club club) {
-    Club stored = clubService.getClub(club.getClubName());
-    stored.setEnterU11Cup(club.isEnterU11Cup());
-    stored.setEnterU12Cup(club.isEnterU12Cup());
-    stored.setEnterU14Cup(club.isEnterU14Cup());
-    clubService.store(stored);
+    clubService.updateCupEntries(club);
     return new ResponseEntity(HttpStatus.OK);
+  }
+
+  @DeleteMapping(value = "/team/delete/{teamId}")
+  @CrossOrigin(origins = "*")
+  public void deleteTeam(@PathVariable String teamId) {
+    clubService.deleteTeam(teamId);
   }
 }
