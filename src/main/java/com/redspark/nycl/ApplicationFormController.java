@@ -120,6 +120,12 @@ public class ApplicationFormController {
   }
 
   @GET
+  @Path("health")
+  public String checkHealth() {
+    return "OK";
+  }
+
+  @GET
   @Path("deleteclub")
   public void deleteClub(@QueryParam("clubName")String clubName) {
     clubService.markClubDeleted(clubName);
